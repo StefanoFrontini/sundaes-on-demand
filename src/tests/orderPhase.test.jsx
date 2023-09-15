@@ -74,3 +74,64 @@ test("order phases for happy path", async () => {
   const toppingTotal = await screen.findByText("Toppings total: $0.00");
   expect(toppingTotal).toBeInTheDocument();
 });
+
+test("Toppings header is not on summary page if no toppings ordered", async () => {
+  render(<App />);
+  const user = userEvent.setup();
+  const vanillaInput = await screen.findByRole("spinbutton", {
+    name: "Vanilla",
+  });
+  await user.clear(vanillaInput);
+  await user.type(vanillaInput, "1");
+  // find and click order button
+  const orderSummary = screen.getByRole("button", {
+    name: /order sundae/i,
+  });
+  await user.click(orderSummary);
+  // const notToppings = screen.queryByText(/toppings/i);
+  const toppingsHeading = screen.queryByRole("heading", {
+    name: /toppings/i,
+  });
+  expect(toppingsHeading).not.toBeInTheDocument();
+});
+
+test("Toppings header is not on summary page if toppings ordered, then removed", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const vanillaInput = await screen.findByRole("spinbutton", {
+    name: "Vanilla",
+  });
+  await user.clear(vanillaInput);
+  await user.type(vanillaInput, "1");
+
+  const cherriesTopping = await screen.findByRole("checkbox", {
+    name: "Cherries",
+  });
+  await user.click(cherriesTopping);
+  expect(cherriesTopping).toBeChecked();
+  const toppingsTotal = screen.getByText("Toppings total: $", {
+    exact: false,
+  });
+  expect(toppingsTotal).toHaveTextContent("1.50");
+
+  // remove topping
+  await user.click(cherriesTopping);
+  expect(cherriesTopping).not.toBeChecked();
+  expect(toppingsTotal).toHaveTextContent("0.00");
+
+  // find and click order summary button
+  const orderSummaryButton = screen.getByRole("button", {
+    name: /order sundae/i,
+  });
+  await user.click(orderSummaryButton);
+
+  const scoopsHeading = screen.queryByRole("heading", {
+    name: /scoops/i,
+  });
+  expect(scoopsHeading).toBeInTheDocument();
+
+  const toppingsHeading = screen.queryByRole("heading", {
+    name: /toppings/i,
+  });
+  expect(toppingsHeading).not.toBeInTheDocument();
+});

@@ -3,6 +3,7 @@ import { useOrderDetails } from "../../contexts/OrderDetails";
 import { formatCurrency } from "../../utilities";
 function OrderEntry({ gotoPhase }) {
   const { totals } = useOrderDetails();
+  const isDisabled = totals.scoops + totals.toppings === 0;
 
   return (
     <>
@@ -11,7 +12,9 @@ function OrderEntry({ gotoPhase }) {
         <Options optionType="scoops" />
         <Options optionType="toppings" />
         <h2>Grand total: {formatCurrency(totals.scoops + totals.toppings)}</h2>
-        <button onClick={() => gotoPhase("orderSummary")}>Order Sundae!</button>
+        <button disabled={isDisabled} onClick={() => gotoPhase("orderSummary")}>
+          Order Sundae!
+        </button>
       </div>
     </>
   );

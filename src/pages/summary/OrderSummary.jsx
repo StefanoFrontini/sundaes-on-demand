@@ -15,13 +15,18 @@ function OrderSummary({ gotoPhase }) {
   const toppingList = toppingsArray.map((key) => {
     return <li key={key}>{key}</li>;
   });
+  const hasToppings = totals.toppings > 0;
   return (
     <div>
       <h1>Order Summary</h1>
       <h2>Scoops: {formatCurrency(totals.scoops)}</h2>
       <ul>{scoopList}</ul>
-      <h2>Toppings: {formatCurrency(totals.toppings)}</h2>
-      <ul>{toppingList}</ul>
+      {hasToppings && (
+        <>
+          <h2>Toppings: {formatCurrency(totals.toppings)}</h2>
+          <ul>{toppingList}</ul>
+        </>
+      )}
       <SummaryForm gotoPhase={gotoPhase} />
     </div>
   );
